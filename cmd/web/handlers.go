@@ -13,6 +13,12 @@ import (
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	files := []string{
 		"./ui/html/base.tmpl.html",
 		"./ui/html/partials/nav.tmpl.html",
@@ -25,7 +31,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ts.ExecuteTemplate(w, "base", nil); err != nil {
+	data := templateData{
+		Snippets: snippets,
+	}
+
+	if err := ts.ExecuteTemplate(w, "base", data); err != nil {
 		app.serverError(w, r, err)
 	}
 }
