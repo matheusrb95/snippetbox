@@ -59,7 +59,11 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ts.ExecuteTemplate(w, "base", snippet); err != nil {
+	data := templateData{
+		Snippet: snippet,
+	}
+
+	if err := ts.ExecuteTemplate(w, "base", data); err != nil {
 		app.serverError(w, r, err)
 	}
 }
