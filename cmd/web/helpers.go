@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/go-playground/form"
+	"github.com/go-playground/form/v4"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
