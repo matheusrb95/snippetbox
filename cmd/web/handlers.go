@@ -174,7 +174,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl.html", data)
 		return
 	}
 
@@ -184,6 +184,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 			form.AddNonFieldError("Email or password is incorrect")
 			data := app.newTemplateData(r)
 			data.Form = form
+
 			app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl.html", data)
 		} else {
 			app.serverError(w, r, err)
@@ -202,5 +203,14 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	if err := app.sessionManager.RenewToken(r.Context()); err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
